@@ -1,24 +1,23 @@
 package models;
 
 public class Client {
+
     private String nome;
     private double salario;
+    private double limiteCredito;
 
-    public String getNome() {
-        return nome;
-    }
+    public void setNome(String nome) {this.nome = nome;}
+    public void setSalario(double salario) {this.salario = salario;}
+    public void setLimiteCredito(double limiteCredito) {this.limiteCredito = limiteCredito;}
 
-    public double getSalario() {
-        return salario;
-    }
+    public String getNome() {return nome;}
+    public double getSalario() {return salario;}
+    public double getLimiteDeCredito() {return limiteCredito;}
 
     public Client(String nome, double salario) {
         this.nome = nome;
         this.salario = salario;
     }
-
-    //public abstract double getLimiteDeCredito();
-
 
     public String getTipoPlano() {
         return this.getClass().getSimpleName();
@@ -39,9 +38,10 @@ public class Client {
     @Override
     public String toString() {
         return String.format("""
+        --- Info ---
         Nome do cliente: %s
         Salario informado: %.2f
         Plano atual: %s
-        """, nome, salario, getTipoPlano());
+        Limite de crédito: %.2f""", nome, salario, getTipoPlano(), getLimiteDeCredito());
     }
 }

@@ -6,7 +6,7 @@ public class BasicClient extends Client{
         super(nome, salario);
     }
 
-    public double getLimiteCredito() {
+    public double getLimiteDeCredito() {
         return 2000.0;
     }
 }

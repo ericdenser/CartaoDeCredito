@@ -6,7 +6,7 @@ public class DiamondClient extends Client{
         super(nome, salario);
     }
 
-    public double getLimiteCredito() {
+    public double getLimiteDeCredito() {
         return 50000.0;
     }
 

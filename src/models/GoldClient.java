@@ -6,7 +6,7 @@ public class GoldClient extends Client {
         super(nome, salario);
     }
 
-    public double getLimiteCredito() {
+    public double getLimiteDeCredito() {
         return 5000.0;
     }
 }

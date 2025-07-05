@@ -6,7 +6,7 @@ public class PlatinumClient extends Client{
         super(nome, salario);
     }
 
-    public double getLimiteCredito() {
-        return 50000.0;
+    public double getLimiteDeCredito() {
+        return 10000.0;
     }
 }
