@@ -4,9 +4,7 @@ public class BasicClient extends Client{
 
     public BasicClient(String nome, double salario) {
         super(nome, salario);
-    }
-
-    public double getLimiteDeCredito() {
-        return 2000.0;
+        setLimiteCredito(2000.0);
+        setCreditoDisponivel(getLimiteDeCredito());
     }
 }

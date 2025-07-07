@@ -5,14 +5,17 @@ public class Client {
     private String nome;
     private double salario;
     private double limiteCredito;
+    private double creditoDisponivel;
 
     public void setNome(String nome) {this.nome = nome;}
     public void setSalario(double salario) {this.salario = salario;}
     public void setLimiteCredito(double limiteCredito) {this.limiteCredito = limiteCredito;}
+    public void setCreditoDisponivel(double creditoDisponivel) {this.creditoDisponivel = creditoDisponivel;}
 
     public String getNome() {return nome;}
     public double getSalario() {return salario;}
     public double getLimiteDeCredito() {return limiteCredito;}
+    public double getCreditoDisponivel() {return creditoDisponivel;}
 
     public Client(String nome, double salario) {
         this.nome = nome;
@@ -42,6 +45,7 @@ public class Client {
         Nome do cliente: %s
         Salario informado: %.2f
         Plano atual: %s
-        Limite de crédito: %.2f""", nome, salario, getTipoPlano(), getLimiteDeCredito());
+        Limite de crédito: %.2f
+        Crédito Disponível: %.2f""", nome, salario, getTipoPlano(), getLimiteDeCredito(), getCreditoDisponivel());
     }
 }

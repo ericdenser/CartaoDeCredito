@@ -1,21 +1,76 @@
 package app;
 
 import models.Client;
+import services.Produto;
+import services.Shop;
+
+import java.util.List;
 import java.util.Scanner;
+
 import static java.lang.System.exit;
 
 public class TerminalApp {
 
+    private static Shop loja = new Shop();
     private static Client cliente;
     private static final Scanner input = new Scanner(System.in);
 
     public static void main(String[] args) {
 
         Cadastro();
-        EfeitoCarregando();
+        //EfeitoCarregando();
 
         while (true) {
             Menu();
+        }
+    }
+
+
+    public static void Cadastro() {
+        System.out.println("--- Cadastro de Cliente ---");
+        String nomeCliente = ValidarEntradaString("Nome: ");
+        System.out.println("Nome aceito!");
+
+        double salarioCliente = ValidarEntradaDouble("Salário: ");
+        if (salarioCliente < 500) {
+            System.out.println("Sinto muito, seu salário não atende o plano mínimo!\nSaindo");
+            EfeitoCarregando();
+            exit(0);
+        }
+
+        cliente = Client.classificarCliente(nomeCliente, salarioCliente);
+        System.out.printf("Parabéns %s, sua conta foi criada com sucesso! Analisamos seu salário e" +
+                " você se encaixa perfeitamente em nosso plano %s\n", cliente.getNome(), cliente.getTipoPlano());
+
+        System.out.println("Estamos te redirecionando para o menu!");
+    }
+
+    public static void Menu() {
+        System.out.printf("""
+                \n--- Menu ---
+                Olá %s! Seja bem-vindo ao menu do banco Cheddar.
+                
+                [1] Configuracões da conta
+                [2] Verificar limite disponível
+                [3] Loja Online
+                [4] Fatura
+                [0] Sair
+                -Por favor escolha uma opcão para prosseguir:
+                """, cliente.getNome());
+        int opcao = input.nextInt();
+        input.nextLine();
+
+        switch (opcao) {
+            case 1 -> AccSettings();
+            case 2 -> System.out.println("opcao 2");
+            case 3 -> OnlineShop();
+            case 4 -> System.out.println("opcao 4");
+            case 0 -> {
+                System.out.println("Saindo");
+                EfeitoCarregando();
+                exit(0);
+            }
+            default -> System.out.println("Selecione uma opcão válida!");
         }
     }
 
@@ -45,7 +100,7 @@ public class TerminalApp {
 
                     while (opcaoInfo < 1 || opcaoInfo > 2) {
                         System.out.println("\nOpcao invalida");
-                        opcaoInfo = ValidarEntradaInt("Escolha uma opcao para prosseguir");
+                        opcaoInfo = ValidarEntradaInt("Escolha uma opcao para prosseguir: ");
                     }
 
                     if (opcaoInfo == 2) {
@@ -124,48 +179,126 @@ public class TerminalApp {
         }
     }
 
-    public static void Cadastro() {
-        System.out.println("--- Cadastro de Cliente ---");
-        String nomeCliente = ValidarEntradaString("Nome: ");
-        System.out.println("Nome aceito!");
+//    public static void VerificarLimite() {
+//        System.out.printf("Limite do plano: R$%.2f", cliente.getLimiteDeCredito());
+//        System.out.printf("Quantia gasta: R$%.2f", );
+//        System.out.printf("Limite restante: R$%.2f", );
+//    }
 
-        double salarioCliente = ValidarEntradaDouble("Salário: ");
-        if (salarioCliente < 500) {
-            System.out.println("Sinto muito, seu salário não atende o plano mínimo!\nSaindo");
-            EfeitoCarregando();
-            exit(0);
+    public static void OnlineShop() {
+
+        boolean redirecionar = false;
+        List<Produto> produtos = loja.getListaDeProdutos();
+        List<Produto> produtosNoCarrinho = loja.getProdutosNoCarrinho();
+
+        while (!redirecionar) {
+            System.out.println("""
+                    \n--- Loja Cheddar ---
+                    [1] Comprar produtos
+                    [2] Ver carrinho
+                    [3] Voltar ao menu
+                    """);
+
+            int opcaoLoja = ValidarEntradaInt("Escolha uma opcao para prosseguir: ");
+            switch (opcaoLoja) {
+                case 1 -> {
+
+                    MostrarProdutos(produtos);
+                    System.out.println("""
+                        \n[1] Adicionar produto
+                        [2] Voltar
+                        """);
+                    int opcaoProdutos = ValidarEntradaInt("Escolha uma opção para prosseguir: ");
+                    while (opcaoProdutos < 1 || opcaoProdutos > 2) {
+                        opcaoProdutos = ValidarEntradaInt("Opção inválida, tente novamente: ");
+                    }
+
+                    if (opcaoProdutos == 1) {
+
+                        int produtoInteressado = ValidarEntradaInt("Informe a numeração do produto: ");
+
+                        while (produtoInteressado < 1 || produtoInteressado > (loja.getListaDeProdutos().size())) {
+                            produtoInteressado = ValidarEntradaInt("Produto não encontrado, tente novamente: ");
+                        }
+
+                        loja.adicionarNoCarrinho(produtoInteressado, cliente);
+
+                    }
+
+                }
+
+                case 2 -> {
+
+                    if (produtosNoCarrinho.isEmpty()) {
+                        System.out.println("\nSeu carrinho está vazio!");
+                        break;
+                    }
+
+                    double totalCarrinho = VerCarrinho(produtosNoCarrinho);
+
+                    System.out.println("""
+                        \n[1] Finalizar compra
+                        [2] Voltar
+                        """);
+                    int opcaoCarrinho = ValidarEntradaInt("Escolha uma opção para prosseguir: ");
+                    while (opcaoCarrinho < 1 || opcaoCarrinho > 2) {
+                        opcaoCarrinho = ValidarEntradaInt("Opção inválida, tente novamente: ");
+                    }
+
+                    if (opcaoCarrinho == 1 && (cliente.getCreditoDisponivel() >= totalCarrinho)) {
+                            cliente.setCreditoDisponivel(cliente.getCreditoDisponivel() - totalCarrinho);
+                            loja.getProdutosNoCarrinho().clear();
+                            System.out.printf("Compra realizada com sucesso! Seu crédito disponível é agora de R$%.2f", cliente.getCreditoDisponivel());
+                        } else {
+                            System.out.println("Crédito insuficiente para finalizar a compra.");
+                        }
+                }
+                
+                case 3 -> redirecionar = true;
+
+                default -> System.out.println("Opcão inválida");
+            }
         }
-
-        cliente = Client.classificarCliente(nomeCliente, salarioCliente);
-        System.out.printf("Parabéns %s, sua conta foi criada com sucesso! Analisamos seu salário e" +
-                " você se encaixa perfeitamente em nosso plano %s\n", cliente.getNome(), cliente.getTipoPlano());
-
-        System.out.println("Estamos te redirecionando para o menu!");
     }
 
-    public static void Menu() {
-        System.out.printf("""
-                    \n--- Menu ---
-                    Olá %s! Seja bem-vindo ao menu do banco Cheddar.
-                    
-                    [1] Configuracões da conta 
-                    [2] Verificar limite disponível 
-                    [3] Loja Online 
-                    [4] Fatura 
-                    [0] Sair
-                    -Por favor escolha uma opcão para prosseguir:
-                    """, cliente.getNome());
-        int opcao = input.nextInt();
-        input.nextLine();
+    public static void MostrarProdutos(List<Produto> produtos) {
+        System.out.println("\n--- Produtos ---");
+        final int[] index = {1};
+        produtos.forEach(produto -> {
+            System.out.printf("[%02d] %-45s R$%8.2f\n",
+                    index[0]++,
+                    produto.getNomeProduto(),
+                    produto.getPrecoProduto());
+//            try {
+//                Thread.sleep(400);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+        });
+    }
 
-        switch (opcao) {
-            case 1 -> AccSettings();
-            case 2 -> System.out.println("opcao 2");
-            case 3 -> System.out.println("opcao 3");
-            case 4 -> System.out.println("opcao 4");
-            case 0 -> {System.out.println("Saindo"); EfeitoCarregando(); exit(0);}
-            default -> System.out.println("Selecione uma opcão válida!");
-        }
+    public static double VerCarrinho(List<Produto> produtosNoCarrinho) {
+
+        System.out.println("\n--- Carrinho ---");
+        final int[] index = {1};
+        produtosNoCarrinho.forEach(produto -> {
+            System.out.printf("[%02d] %-45s R$%8.2f\n",
+                    index[0]++,
+                    produto.getNomeProduto(),
+                    produto.getPrecoProduto());
+//            try {
+//                Thread.sleep(400);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+        });
+
+        double totalCarrinho = produtosNoCarrinho.stream()
+                .mapToDouble(Produto::getPrecoProduto)
+                .sum();
+
+        System.out.printf("\nO valor total de seu carrinho é R$%.2f", totalCarrinho );
+        return totalCarrinho;
     }
 
     public static int ValidarEntradaInt(String mensagem) {
