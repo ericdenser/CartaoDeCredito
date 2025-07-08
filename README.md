@@ -1,6 +1,6 @@
 🧀 Banco Cheddar – Sistema de Terminal com Loja Online
 
-Projeto desenvolvido em Java que simula um sistema bancário com funcionalidades de cadastro de cliente, verificação de crédito, loja virtual, fatura e muito mais – tudo via terminal.
+Projeto desenvolvido em Java que simula um sistema bancário de cartão de crédito com funcionalidades de cadastro de cliente, verificação de crédito, loja virtual, fatura e muito mais – tudo via terminal.
 
 Futuras melhorias: 
 - Refatorar a aplicação para orientação a objetos completa, evitando o uso excessivo de static
