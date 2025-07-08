@@ -7,6 +7,11 @@ public class Client {
     private double limiteCredito;
     private double creditoDisponivel;
 
+    public Client(String nome, double salario) {
+        this.nome = nome;
+        this.salario = salario;
+    }
+
     public void setNome(String nome) {this.nome = nome;}
     public void setSalario(double salario) {this.salario = salario;}
     public void setLimiteCredito(double limiteCredito) {this.limiteCredito = limiteCredito;}
@@ -16,15 +21,7 @@ public class Client {
     public double getSalario() {return salario;}
     public double getLimiteDeCredito() {return limiteCredito;}
     public double getCreditoDisponivel() {return creditoDisponivel;}
-
-    public Client(String nome, double salario) {
-        this.nome = nome;
-        this.salario = salario;
-    }
-
-    public String getTipoPlano() {
-        return this.getClass().getSimpleName();
-    }
+    public String getTipoPlano() {return this.getClass().getSimpleName();}
 
     public static Client classificarCliente(String nome, double salario) {
         if (salario <= 2000) {

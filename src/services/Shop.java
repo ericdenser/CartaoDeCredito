@@ -12,10 +12,17 @@ public class Shop {
     private List<Produto> listaDeProdutos;
     private List<Produto> produtosNoCarrinho;
 
+    public void setProdutosComprados(List<Produto> produtosComprados) {
+        this.produtosComprados = produtosComprados;
+    }
+
+    private List<Produto> produtosComprados;
+
     public Shop() {
         this.valorCarrinho = 0.0;
         this.listaDeProdutos = new ArrayList<>();
         this.produtosNoCarrinho = new ArrayList<>();
+        this.produtosComprados = new ArrayList<>();
 
         this.listaDeProdutos.addAll(Arrays.asList(
                 new Produto("Smartphone Samsung Galaxy S24", 4999.99),
@@ -42,13 +49,15 @@ public class Shop {
         return produtosNoCarrinho;
     }
 
+    public List<Produto> getProdutosComprados() {
+        return produtosComprados;
+    }
+
     public void adicionarNoCarrinho(int numeracao, Client cliente) {
         numeracao--;
         Produto produtoSelecionado = listaDeProdutos.get(numeracao);
         produtosNoCarrinho.add(produtoSelecionado);
         System.out.printf("\nProduto %s adicionado ao carrinho com sucesso!\n", produtoSelecionado.getNomeProduto());
     }
-
-
 
 }

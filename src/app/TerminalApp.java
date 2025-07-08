@@ -18,7 +18,7 @@ public class TerminalApp {
     public static void main(String[] args) {
 
         Cadastro();
-        //EfeitoCarregando();
+        EfeitoCarregando();
 
         while (true) {
             Menu();
@@ -33,7 +33,7 @@ public class TerminalApp {
 
         double salarioCliente = ValidarEntradaDouble("Salário: ");
         if (salarioCliente < 500) {
-            System.out.println("Sinto muito, seu salário não atende o plano mínimo!\nSaindo");
+            System.out.println("Sinto muito, seu salário não atende o plano mínimo de nosso banco!\nSaindo");
             EfeitoCarregando();
             exit(0);
         }
@@ -51,20 +51,18 @@ public class TerminalApp {
                 Olá %s! Seja bem-vindo ao menu do banco Cheddar.
                 
                 [1] Configuracões da conta
-                [2] Verificar limite disponível
+                [2] Verificar crédito disponível
                 [3] Loja Online
                 [4] Fatura
                 [0] Sair
-                -Por favor escolha uma opcão para prosseguir:
                 """, cliente.getNome());
-        int opcao = input.nextInt();
-        input.nextLine();
+        int opcaoMenu = ValidarEntradaInt("-Por favor escolha uma opcão para prosseguir:");
 
-        switch (opcao) {
+        switch (opcaoMenu) {
             case 1 -> AccSettings();
-            case 2 -> System.out.println("opcao 2");
+            case 2 -> VerificarLimite();
             case 3 -> OnlineShop();
-            case 4 -> System.out.println("opcao 4");
+            case 4 -> Fatura(loja.getProdutosComprados());
             case 0 -> {
                 System.out.println("Saindo");
                 EfeitoCarregando();
@@ -132,6 +130,11 @@ public class TerminalApp {
 
                     } else {
 
+                        if (!loja.getProdutosComprados().isEmpty()) {
+                            System.out.println("\nVocê tem uma fatura em andamento! Pague antes de atualizar");
+                            break;
+                        }
+
                         double novoSalario = ValidarEntradaDouble("Novo salário: ");
 
                         String antigoPlano = cliente.getTipoPlano();
@@ -164,9 +167,13 @@ public class TerminalApp {
                     }
 
                     if (opcaoEncerrar == 1) {
-                        System.out.println("Encerrando conta.");
-                        EfeitoCarregando();
-                        exit(0);
+                        if (!loja.getProdutosComprados().isEmpty()) {
+                            System.out.println("\nVocê não pode encerrar sua conta até pagar a fatura em aberto!");
+                        } else {
+                            System.out.println("Encerrando conta.");
+                            EfeitoCarregando();
+                            exit(0);
+                        }
                     }
 
                 }
@@ -179,17 +186,23 @@ public class TerminalApp {
         }
     }
 
-//    public static void VerificarLimite() {
-//        System.out.printf("Limite do plano: R$%.2f", cliente.getLimiteDeCredito());
-//        System.out.printf("Quantia gasta: R$%.2f", );
-//        System.out.printf("Limite restante: R$%.2f", );
-//    }
+    public static void VerificarLimite() {
+        System.out.printf("""
+            Limite do plano: R$%.2f
+            Limite disponível: R$%.2f
+            """, cliente.getLimiteDeCredito(), cliente.getCreditoDisponivel());
+
+        ValidarEntradaInt("Digite qualquer número para voltar: ");
+
+
+    }
 
     public static void OnlineShop() {
 
         boolean redirecionar = false;
         List<Produto> produtos = loja.getListaDeProdutos();
         List<Produto> produtosNoCarrinho = loja.getProdutosNoCarrinho();
+        List<Produto> produtosComprados = loja.getProdutosComprados();
 
         while (!redirecionar) {
             System.out.println("""
@@ -238,20 +251,30 @@ public class TerminalApp {
 
                     System.out.println("""
                         \n[1] Finalizar compra
-                        [2] Voltar
+                        [2] Limpar carrinho
+                        [3] Voltar
                         """);
                     int opcaoCarrinho = ValidarEntradaInt("Escolha uma opção para prosseguir: ");
-                    while (opcaoCarrinho < 1 || opcaoCarrinho > 2) {
+                    while (opcaoCarrinho < 1 || opcaoCarrinho > 3) {
                         opcaoCarrinho = ValidarEntradaInt("Opção inválida, tente novamente: ");
                     }
 
-                    if (opcaoCarrinho == 1 && (cliente.getCreditoDisponivel() >= totalCarrinho)) {
+                    if (opcaoCarrinho == 1) {
+                        if (cliente.getCreditoDisponivel() >= totalCarrinho) {
+                            produtosComprados.addAll(produtosNoCarrinho);
                             cliente.setCreditoDisponivel(cliente.getCreditoDisponivel() - totalCarrinho);
                             loja.getProdutosNoCarrinho().clear();
                             System.out.printf("Compra realizada com sucesso! Seu crédito disponível é agora de R$%.2f", cliente.getCreditoDisponivel());
+
                         } else {
                             System.out.println("Crédito insuficiente para finalizar a compra.");
                         }
+
+                    } else if (opcaoCarrinho == 2) {
+                        loja.getProdutosNoCarrinho().clear();
+                        System.out.println("\nCarrinho limpado com sucesso!");
+                    }
+
                 }
                 
                 case 3 -> redirecionar = true;
@@ -269,11 +292,11 @@ public class TerminalApp {
                     index[0]++,
                     produto.getNomeProduto(),
                     produto.getPrecoProduto());
-//            try {
-//                Thread.sleep(400);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -286,11 +309,11 @@ public class TerminalApp {
                     index[0]++,
                     produto.getNomeProduto(),
                     produto.getPrecoProduto());
-//            try {
-//                Thread.sleep(400);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         double totalCarrinho = produtosNoCarrinho.stream()
@@ -299,6 +322,43 @@ public class TerminalApp {
 
         System.out.printf("\nO valor total de seu carrinho é R$%.2f", totalCarrinho );
         return totalCarrinho;
+    }
+
+    public static void Fatura(List<Produto> produtosComprados) {
+
+        if (produtosComprados.isEmpty()) {
+            System.out.println("""
+            Sua fatura esta em dia!
+            Voltando ao menu""");
+            EfeitoCarregando();
+            return;
+        }
+
+        double faturaTotal = 0.0;
+
+        System.out.println("--- Fatura ---");
+        for (Produto produto : produtosComprados) {
+            System.out.println(produto.toString());
+            faturaTotal += produto.getPrecoProduto();
+
+        }
+        System.out.printf("""
+            \nValor total da fatura = R$%.2f
+            Deseja pagar agora?
+            [1] Sim
+            [2] Não, voltar\n""", faturaTotal);
+        int opcaoFatura = ValidarEntradaInt("Escolha uma opcão para prosseguir: ");
+        while (opcaoFatura < 1 || opcaoFatura > 2) {
+            opcaoFatura = ValidarEntradaInt("Opção inválida, tente novamente: ");
+        }
+
+        if (opcaoFatura == 1) {
+
+            cliente.setCreditoDisponivel(cliente.getLimiteDeCredito());
+            loja.getProdutosComprados().clear();
+            System.out.println("\nA fatura foi paga com sucesso! Seu crédito foi restaurado e esta pronto" +
+                    " para ser usado!");
+        }
     }
 
     public static int ValidarEntradaInt(String mensagem) {
@@ -340,7 +400,7 @@ public class TerminalApp {
         while (true) {
             System.out.print(mensagem);
             entrada = input.nextLine();
-            if (entrada.matches("[a-zA-Z]+")) {
+            if (entrada.matches("[\\p{L} ]+")) {
                 break;
             } else {
                 System.out.println("Entrada inválida");
